@@ -1,18 +1,22 @@
-#include <avr/io.h>
 #include <avrm.h>
-#include <avrm/pin.h>
 #include <avrm/shift.h>
 
 int main(void) {
-    // Set the control pins as outputs.
-    pin_mode(8, OUTPUT);
-    pin_mode(11, OUTPUT);
-    pin_mode(12, OUTPUT);
+    // Setup the shift register array.
+    ShiftLatchConfig config = { 11, 12, 8 };
+    shift_latch_init(config);
 
     for (;;) {
         // Shift out the binary from 0 to 255 each 100ms.
-        for (uint8_t i = 0; i < 256; i++) {
-            shift_latch(11, 12, 8, i);
+        for (byte i = 0; i < 256; i++) {
+            byte buff[2] = {
+                i % 2 == 0 ? 1 : 2,
+                i % 2 == 0 ? i : 255-i
+            };
+
+            // XXX: We need a way to delay the buff[1] loop, but not the
+            // buff[0] loop.
+            shift_latch(config, buff, 2);
             delay_ms(100);
         }
     }
