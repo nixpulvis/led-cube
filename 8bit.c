@@ -1,10 +1,13 @@
 #include <avr/io.h>
 #include <avrm.h>
+#include <avrm/pin.h>
 #include <avrm/shift.h>
 
 int main(void) {
-    // TODO: This needs to be updated to a function in avrm/pin.h.
-    DDRB = DDRB | 25;
+    // Set the control pins as outputs.
+    pin_mode(8, OUTPUT);
+    pin_mode(11, OUTPUT);
+    pin_mode(12, OUTPUT);
 
     for (;;) {
         // Shift out the binary from 0 to 255 each 100ms.
