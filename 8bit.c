@@ -2,8 +2,8 @@
 #include <avrm.h>
 #include <avrm/port.h>
 
-void shift(uint8_t n);
-void latch_shift(uint8_t n);
+void shift(int data_pin, int clock_pin, uint8_t n);
+void latch_shift(int latch_pin, int data_pin, int clock_pin, uint8_t n);
 
 int main(void) {
     DDRB = DDRB | 0b00011001;
@@ -11,7 +11,7 @@ int main(void) {
     for (;;) {
         // Shift out the binary from 0 to 255 each 100ms.
         for (uint8_t i = 0; i < 256; i++) {
-            latch_shift(i);
+            latch_shift(8, 11, 12, i);
             delay_ms(100);
         }
     }
@@ -19,30 +19,30 @@ int main(void) {
     return 0;
 }
 
-void shift(uint8_t n) {
+void shift(int data_pin, int clock_pin, uint8_t n) {
     for (int i = 0; i < 8; i++) {
         // Write the current bit to the SER.
         if (n & 0b10000000) {
-            pin_out(11, TRUE);
+            pin_out(data_pin, TRUE);
         } else {
-            pin_out(11, FALSE);
+            pin_out(data_pin, FALSE);
         }
 
         // Toggle the SRCLK.
-        pin_out(12, TRUE);
-        pin_out(12, FALSE);
+        pin_out(clock_pin, TRUE);
+        pin_out(clock_pin, FALSE);
 
         // Advance the value to shift out.
         n <<= 1;
     }
 }
 
-void latch_shift(uint8_t n) {
+void latch_shift(int latch_pin, int data_pin, int clock_pin, uint8_t n) {
     // Begin the shift by latching RCLK (logic LOW).
-    pin_out(8, FALSE);
+    pin_out(latch_pin, FALSE);
     // Shift out the value of `i`.
-    shift(n);
+    shift(data_pin, clock_pin, n);
     // End the shift be releasing RCLK (logic HIGH).
-    pin_out(8, TRUE);
+    pin_out(latch_pin, TRUE);
 }
 
