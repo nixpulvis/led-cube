@@ -1,5 +1,6 @@
 #include <avr/io.h>
 #include <avrm.h>
+#include <avrm/port.h>
 
 void shift(uint8_t n);
 void latch_shift(uint8_t n);
@@ -22,14 +23,14 @@ void shift(uint8_t n) {
     for (int i = 0; i < 8; i++) {
         // Write the current bit to the SER.
         if (n & 0b10000000) {
-            PORTB |= _BV(3);
+            pin_out(11, TRUE);
         } else {
-            PORTB &= ~_BV(3);
+            pin_out(11, FALSE);
         }
 
         // Toggle the SRCLK.
-        PORTB |= _BV(4);
-        PORTB &= ~_BV(4);
+        pin_out(12, TRUE);
+        pin_out(12, FALSE);
 
         // Advance the value to shift out.
         n <<= 1;
@@ -38,10 +39,10 @@ void shift(uint8_t n) {
 
 void latch_shift(uint8_t n) {
     // Begin the shift by latching RCLK (logic LOW).
-    PORTB &= ~_BV(0);
+    pin_out(8, FALSE);
     // Shift out the value of `i`.
     shift(n);
     // End the shift be releasing RCLK (logic HIGH).
-    PORTB |= _BV(0);
+    pin_out(8, TRUE);
 }
 
