@@ -9,6 +9,7 @@ install:
     - git clone https://github.com/nixpulvis/avrm.git ~/avrm
     - cd ~/avrm
     - sudo make install
+    - cd $TRAVIS_BUILD_DIR
 
-script: sudo make main.size
+script: make main.size
 
