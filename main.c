@@ -1,7 +1,8 @@
+#include <limits.h>
 #include <avrm.h>
 #include <avrm/shift.h>
 
-#define ROWS 3
+#define ROWS 8
 
 int main(void) {
     // Setup the shift register array.
@@ -17,31 +18,26 @@ int main(void) {
     // would turn the entire matrix on at once (don't do this).
     byte io[2];
 
+    // `count` a number we're baseing the display on.
+    byte count = 0;
+
+    // An incremental number to base count on.
+    int n = 0;
+
     for (;;) {
-        // Each LED one at a time.
-        for (int i = 0; i < ROWS; i++)
-        for (int j = 0; j < 8; j++) {
-            io[0] = ~(0x01<<i);
-            io[1] = ~(0x01<<j);
-            shift_latch(config, io, 2);
-            delay_ms(50);
-        }
-        // Each row at a time.
+        if (n % 50 == 0)
+            count++;
+
         for (int i = 0; i < ROWS; i++) {
             io[0] = ~(0x01<<i);
-            // NOTE: This is safe to completly enable because each cathod is
-            // attached to a pin able to sink it's ~20mA.
-            io[1] = 0x00;
-            shift_latch(config, io, 2);
-            delay_ms(400);
-        }
-        // Fast scanning.
-        for (int n = 0; n < 3000; n++)
-        for (int i = 0; i < ROWS; i++) {
-            io[0] = ~(0x01<<i);
-            io[1] = 0x42;
+            if (i % 2 == 0)
+                io[1] = count;
+            else
+                io[1] = 255 - count;
             shift_latch(config, io, 2);
         }
+
+        n++;
     }
 
     return 0;
