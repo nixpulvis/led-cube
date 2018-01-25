@@ -1,4 +1,4 @@
-update=Mon 22 Jan 2018 05:17:01 PM MST
+update=Tue 23 Jan 2018 09:32:22 AM MST
 version=1
 last_client=kicad
 [pcbnew]
@@ -182,3 +182,13 @@ LibName150=/usr/share/kicad/libraries/kicad-symbols/Transistor_IGBT
 LibName151=/usr/share/kicad/libraries/kicad-symbols/Triac_Thyristor
 LibName152=/usr/share/kicad/libraries/kicad-symbols/Valve
 LibName153=/usr/share/kicad/libraries/kicad-symbols/Video
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=60
