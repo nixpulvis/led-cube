@@ -5,7 +5,7 @@
 
 int main(void) {
     // Setup the shift register array.
-    ShiftLatchConfig config = { 11, 12, 8 };
+    ShiftLatchConfig config = { 5, 6, 7 };
     shift_latch_init(config);
 
     // `io` contains the two dimensions of an individual LED layer.
