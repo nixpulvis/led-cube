@@ -1,8 +1,11 @@
+#include <stdlib.h>
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avrm.h>
 #include <avrm/shift.h>
+
+// #define SCAN_DELAY 1000 / 8
 
 // `display` contains an 8x8 array of booleans for the state of the
 // corrisponding LED. The origin is the bottom left.
@@ -11,24 +14,26 @@ static bool display[8][8];
 void update();
 void scan(ShiftLatchConfig, bool[8][8]);
 byte to_byte(bool[8]);
+void from_byte(bool[8], byte b);
 
 ISR(TIMER1_OVF_vect) {
     // Update the display buffer.
     update();
     // Reset the timer.
-    TCNT1 = 63974;
+    TCNT1 = 10000;
 }
 
 int main(void) {
     // Setup the ISR timer.
-    TCNT1  = 63974;
+    TCNT1  = 10000;
     TCCR1A = 0x00;
     TCCR1B = (1<<CS10) | (1<<CS12);
     TIMSK1 = (1 << TOIE1);
     sei();
 
     // Setup the inital display state.
-    display[0][0] = TRUE;
+    // display[0][0] = TRUE;
+    update();
 
     // Setup the shift register array.
     ShiftLatchConfig config = { 5, 6, 7 };
@@ -42,15 +47,20 @@ int main(void) {
 }
 
 void update() {
-    byte new[8][8];
-    for (int i = 0; i < 8; i++)
-    for (int j = 0; j < 8; j++)
-        new[i][j] = display[i][j - 1];
-    memcpy(display, new, sizeof(display));
+    // byte new[8][8];
+    // for (int i = 0; i < 8; i++)
+    // for (int j = 0; j < 8; j++)
+    //     new[i][j] = display[i][j - 1];
+    // memcpy(display, new, sizeof(display));
 
-    if (display[2][1]) {
-        display[0][0] = TRUE;
-    }
+    // if (display[2][1]) {
+    //     display[0][0] = TRUE;
+    // }
+
+    bool new[8][8];
+    for (int i = 0; i < 8; i++)
+        from_byte(new[i], rand());
+    memcpy(display, new, sizeof(display));
 }
 
 void scan(ShiftLatchConfig config, bool display[8][8]) {
@@ -72,6 +82,9 @@ void scan(ShiftLatchConfig config, bool display[8][8]) {
 
         // Shift this row of the scanned display.
         shift_latch(config, io, 2);
+#ifdef SCAN_DELAY
+        delay_ms(SCAN_DELAY);
+#endif
     }
 }
 
@@ -83,3 +96,7 @@ byte to_byte(bool b[8]) {
     return c;
 }
 
+void from_byte(bool arr[8], byte b) {
+    for (int i=0; i < 8; ++i)
+        arr[i] = (b & (1<<i)) != 0;
+}
