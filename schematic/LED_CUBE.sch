@@ -1882,4 +1882,5 @@ Text Notes 7000 5900 0    60   ~ 0
 clock
 Text Notes 7950 4350 0    60   ~ 0
 reset
+NoConn ~ 9900 5900
 $EndSCHEMATC
