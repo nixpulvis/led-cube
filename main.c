@@ -5,7 +5,10 @@
 #include <avrm.h>
 #include <avrm/shift.h>
 
+#define PROGRAM 2
+
 // #define SCAN_DELAY 1000 / 8
+#define UPDATE_RATE 60000
 
 // `display` contains an 8x8 array of booleans for the state of the
 // corrisponding LED. The origin is the bottom left.
@@ -20,19 +23,24 @@ ISR(TIMER1_OVF_vect) {
     // Update the display buffer.
     update();
     // Reset the timer.
-    TCNT1 = 10000;
+    TCNT1 = UPDATE_RATE;
 }
 
 int main(void) {
     // Setup the ISR timer.
-    TCNT1  = 10000;
+    TCNT1  = UPDATE_RATE;
     TCCR1A = 0x00;
     TCCR1B = (1<<CS10) | (1<<CS12);
     TIMSK1 = (1 << TOIE1);
     sei();
 
     // Setup the inital display state.
-    // display[0][0] = TRUE;
+#if PROGRAM == 0
+    display[0][0] = TRUE;
+#elif PROGRAM == 1
+    for (int i = 0; i < 8; i++)
+        from_byte(display[i], 0xFF);
+#endif
     update();
 
     // Setup the shift register array.
@@ -47,20 +55,24 @@ int main(void) {
 }
 
 void update() {
-    // byte new[8][8];
-    // for (int i = 0; i < 8; i++)
-    // for (int j = 0; j < 8; j++)
-    //     new[i][j] = display[i][j - 1];
-    // memcpy(display, new, sizeof(display));
+#if PROGRAM == 0
+    byte new[8][8];
+    for (int i = 0; i < 8; i++)
+    for (int j = 0; j < 8; j++)
+        new[i][j] = display[i][j - 1];
+    memcpy(display, new, sizeof(display));
 
-    // if (display[2][1]) {
-    //     display[0][0] = TRUE;
-    // }
-
+    if (display[2][1]) {
+        display[0][0] = TRUE;
+    }
+#elif PROGRAM == 1
+    // noop.
+#elif PROGRAM == 2
     bool new[8][8];
     for (int i = 0; i < 8; i++)
         from_byte(new[i], rand());
     memcpy(display, new, sizeof(display));
+#endif
 }
 
 void scan(ShiftLatchConfig config, bool display[8][8]) {
